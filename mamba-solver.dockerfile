@@ -1,5 +1,5 @@
-ARG TAG=latest
-FROM install-conda:$TAG
+ARG CONDA=23.3.1-0
+FROM install-conda:$CONDA
 
 RUN conda install -y -n base conda-libmamba-solver \
  && conda config --set solver libmamba \

@@ -1,5 +1,5 @@
-ARG TAG=latest
-FROM install-conda:$TAG
+ARG CONDA=4.12.0
+FROM install-conda:$CONDA
 
 ARG CONDA=4.12.0
 ARG PYTHON=3.9.13
