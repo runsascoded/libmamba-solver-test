@@ -11,4 +11,4 @@ ARG ENV=base
 ENV ENV_YML=$ENV_YML ENV=$ENV
 COPY $ENV_YML $ENV_YML
 
-ENTRYPOINT [ "time", "mamba", "env", "update", "-n", "$ENV", "-f", "$ENV_YML" ]
+ENTRYPOINT [ "mamba", "env", "update", "-n", "$ENV", "-f", "$ENV_YML" ]
