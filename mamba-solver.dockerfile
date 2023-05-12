@@ -11,5 +11,4 @@ ARG ENV=base
 ENV ENV_YML=$ENV_YML ENV=$ENV
 COPY $ENV_YML $ENV_YML
 
-RUN time conda env update -n $ENV -f $ENV_YML \
- && conda clean -afy
+ENTRYPOINT [ "time", "conda", "env", "update", "-n", "$ENV", "-f", "$ENV_YML" ]

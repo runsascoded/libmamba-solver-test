@@ -11,5 +11,4 @@ ARG ENV=base
 ENV ENV_YML=$ENV_YML ENV=$ENV
 COPY $ENV_YML $ENV_YML
 
-RUN time mamba env update -n $ENV -f $ENV_YML \
- && mamba clean -afy
+ENTRYPOINT [ "time", "mamba", "env", "update", "-n", "$ENV", "-f", "$ENV_YML" ]
