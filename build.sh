@@ -24,3 +24,4 @@ fi
 
 set -x
 docker build -t$IMG:$CONDA -f $IMG.dockerfile --build-arg CONDA=$CONDA .
+docker tag $IMG:$CONDA $IMG
