@@ -15,7 +15,7 @@ RUN apt-get update \
 WORKDIR ..
 
 ENV d=/opt/conda
-ENV conda="$d/bin/conda"
+ENV PATH="$d/bin:$PATH"
 ARG CONDA
 RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-py39_${CONDA}-Linux-x86_64.sh" -O ~/miniconda.sh \
  && /bin/bash ~/miniconda.sh -b -p "$d" \
