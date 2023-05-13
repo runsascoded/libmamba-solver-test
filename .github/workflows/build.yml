@@ -1,35 +1,15 @@
-name: Test Docker builds with Mamba CLI / conda-libmamba-solver
+name: Run Docker builds with Mamba CLI vs. conda-libmamba-solver
 on:
   pull_request:
-env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  ref: ${{ github.event.pull_request && github.head_ref || github.ref_name }}
 jobs:
   run:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-        - build: cli
-        - build: solver
+        - build: mamba-cli
+        - build: mamba-solver
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ env.ref }}
-      - name: Build install-mamba-${{ matrix.build }}
-        run: ./build.sh install-mamba-${{ matrix.build }}
-      - name: conda list
-        run: conda list
-      - name: Log in to Docker Hub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Push install-mamba-${{ matrix.build }}
-        run: |
-          img=$DOCKER_USERNAME/install-conda:$(git log -1 --format=%h)
-          docker tag install-mamba-${{ matrix.build }} $img
-          docker push $img
-      - name: "Build env-update:${{ matrix.build }}"
-        run: ./build.sh env-update ${{ matrix.build }}
+      - name: Build install-${{ matrix.build }}
+        run: docker build -f${{ matrix.build }}.dockerfile -t${{ matrix.build }} .
