@@ -1,0 +1,10 @@
+ARG FROM
+FROM $FROM
+
+ARG ENV_YML=environment.yml
+ARG ENV=base
+ENV ENV_YML=$ENV_YML ENV=$ENV
+COPY $ENV_YML $ENV_YML
+
+ARG CLI
+RUN $CLI env update -n $ENV -f $ENV_YML
