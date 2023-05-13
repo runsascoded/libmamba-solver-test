@@ -3,4 +3,4 @@ FROM $FROM
 
 COPY environment.yml environment.yml
 ARG CLI
-RUN $CLI env update -q -v -n $ENV -f $ENV_YML
+RUN $CLI env update -q -v -n base -f $ENV_YML
