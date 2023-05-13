@@ -9,6 +9,7 @@ jobs:
         include:
         - build: mamba-cli
         - build: mamba-solver
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
       - name: Build ${{ matrix.build }} (1 of 3)
