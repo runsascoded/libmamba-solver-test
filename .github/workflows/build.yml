@@ -11,5 +11,13 @@ jobs:
         - build: mamba-solver
     steps:
       - uses: actions/checkout@v3
-      - name: Build install-${{ matrix.build }}
-        run: docker build -f${{ matrix.build }}.dockerfile -t${{ matrix.build }} .
+      - name: Build ${{ matrix.build }} (1 of 3)
+        run: docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
+      - name: Build ${{ matrix.build }} (2 of 3)
+        run: |
+          docker rmi ${{ matrix.build }}
+          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
+      - name: Build ${{ matrix.build }} (3 of 3)
+        run: |
+          docker rmi
+          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
