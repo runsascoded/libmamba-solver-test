@@ -1,0 +1,23 @@
+name: Test Docker builds with Mamba CLI / conda-libmamba-solver
+on:
+  pull_request:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+        - conda: 4.12.0
+          build: install-mamba
+        - conda: 23.3.1-0
+          build: mamba-solver
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request && github.head_ref || github.ref_name }}
+      - name: Install conda ${{ matrix.conda }}
+        run: ./build.sh install-conda ${{ matrix.conda }}
+      - name: Build ${{ matrix.build }}
+        run: ./build.sh ${{ matrix.build }} ${{ matrix.conda }}
+      - name: Run env update
+        run: docker run ${{ matrix.build }}:${{ matrix.conda }}
