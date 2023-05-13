@@ -1,10 +1,6 @@
 ARG FROM
 FROM $FROM
 
-ARG ENV_YML=environment.yml
-ARG ENV=base
-ENV ENV_YML=$ENV_YML ENV=$ENV
-COPY $ENV_YML $ENV_YML
-
+COPY environment.yml environment.yml
 ARG CLI
 RUN $CLI env update -q -v -n $ENV -f $ENV_YML
