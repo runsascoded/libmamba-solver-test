@@ -6,19 +6,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-        - build: mamba-cli
-        - build: mamba-solver
+        build: [ mamba-cli, mamba-solver ]
+        job: [ 1, 2, 3, 4, 5 ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
-      - name: Build ${{ matrix.build }} (1 of 3)
+      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 1 (includes conda/mamba setup)"
         run: docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
-      - name: Build ${{ matrix.build }} (2 of 3)
+      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 2 (`env update` only)"
         run: |
-          docker rmi ${{ matrix.build }}
+          docker rmi --no-prune ${{ matrix.build }}
           docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
-      - name: Build ${{ matrix.build }} (3 of 3)
+      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 3 (`env update` only)"
         run: |
-          docker rmi
+          docker rmi --no-prune ${{ matrix.build }}
+          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
+      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 4 (`env update` only)"
+        run: |
+          docker rmi --no-prune ${{ matrix.build }}
           docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
