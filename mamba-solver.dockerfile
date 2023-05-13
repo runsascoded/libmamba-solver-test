@@ -3,7 +3,7 @@ FROM nvidia/cuda:11.6.1-base-ubuntu20.04
 ENV TZ=America/New_York DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
- && apt-get install -y g++ wget \
+ && apt-get install -y g++ time wget \
  && apt-get clean
 
 ENV d=/opt/conda
