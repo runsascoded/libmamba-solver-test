@@ -17,5 +17,7 @@ jobs:
         run: ./build.sh install-conda
       - name: Build install-mamba-${{ matrix.build }}
         run: ./build.sh install-mamba-${{ matrix.build }}
+      - name: conda list
+        run: conda list
       - name: Run env update
         run: ./build.sh env-update ${{ matrix.build }}
