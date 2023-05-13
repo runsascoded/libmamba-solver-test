@@ -3,15 +3,13 @@
 ```bash
 build.sh install-conda
 build.sh install-mamba-cli
-build.sh install-mamba-solver 23.3.1-0
-
-n=mamba-solver; time docker run --name $n $n
-# real	6m33.626s
-# user	0m0.068s
-# sys	0m0.041s
-
-n=install-mamba; time docker run --name $n $n
-# real	6m18.406s
-# user	0m0.049s
-# sys	0m0.024s
+build.sh install-mamba-solver
+build.sh env-update cli
+# real	9m25.328s
+# user	0m0.044s
+# sys	0m0.077s
+build.sh env-update solver
+# 
+# 
+# 
 ```
