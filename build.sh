@@ -3,7 +3,7 @@
 set -e
 
 usage() {
-    echo "Usage: $0 <install-conda|install-mamba-cli|install-mamba-solver>" >&2
+    echo "Usage: $0 <install-mamba-cli|install-mamba-solver>" >&2
     echo "Usage: $0 env-update <cli|solver>" >&2
     exit 1
 }
@@ -17,7 +17,6 @@ args=()
 case "$IMG" in
     install-mamba-cli) BIN=mamba ;;
     install-mamba-solver) BIN=conda ;;
-    install-conda) ;;
     env-update)
         if [ $# -ne 1 ]; then
             usage
