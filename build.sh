@@ -38,4 +38,5 @@ if [ $# -gt 0 ]; then
     usage
 fi
 
+set -x
 time docker build -t$IMG -f $IMG.dockerfile "${args[@]}" .
