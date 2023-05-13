@@ -9,6 +9,7 @@ jobs:
         build: [ mamba-cli, mamba-solver ]
         job: [ 1, 2, 3, 4, 5 ]
       fail-fast: false
+    name: "${{ matrix.build }}, job ${{ matrix.job }}"
     steps:
       - uses: actions/checkout@v3
       - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 1 (includes conda/mamba setup)"
