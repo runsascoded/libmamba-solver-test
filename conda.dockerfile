@@ -16,7 +16,6 @@ RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-
  && echo "conda activate base" >> ~/.bashrc
 
 RUN time conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12 conda-libmamba-solver \
- && conda config --set solver libmamba \
  && conda clean -afy
 
 COPY environment.yml environment.yml
