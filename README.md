@@ -744,7 +744,7 @@ info libmamba Adding job: umap-learn 0.5.2
 #### `classic` version doesn't reference `libmamba` (as expected)
 The plain `conda` (`classic` solver) jobs don't reference `libmamba`, as expected ([example][combined run conda job 1]), seemingly ruling out that I'm inadvertently just running with the `classic` solver when I mean to be using `conda-libmamba-solver`.
 
-### Aside: `-c conda-forge` corrupts `conda-libmamba-solver` install 1/3 of the time
+### Aside: `-c conda-forge` corrupts `conda-libmamba-solver` install 1/3 of the time <a id="conda-forge-failures"></a>
 Separately, in some of my tests, I installed `conda-libmamba-solver` alongside `python` and `conda` pins, and included `-c conda-forge`:
 
 ```bash
