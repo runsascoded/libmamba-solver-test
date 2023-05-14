@@ -14,3 +14,5 @@ RUN time conda env update -q -v -n my-env
 SHELL ["conda", "run", "-n", "my-env", "/bin/bash", "-c"]
 RUN conda env list
 RUN pip install plotly
+
+ENTRYPOINT [ "python", "-c", "import plotly; print(plotly)" ]
