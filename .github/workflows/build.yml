@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        build: [ mamba-cli, mamba-solver, conda ]
+        build: [ conda ]
         job: [ 1, 2, 3, 4, 5 ]
       fail-fast: false
     name: "${{ matrix.build }}, job ${{ matrix.job }}"
