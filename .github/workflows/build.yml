@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         build: [ conda, conda-libmamba-solver, mamba ]
-        job: [ 1, 2, 3, 4, 5 ]
+        job: [ 1, 2, 3, 4 ]
       fail-fast: false
     name: "${{ matrix.build }}, job ${{ matrix.job }}"
     steps:
@@ -21,10 +21,6 @@ jobs:
           docker rmi --no-prune ${{ matrix.build }}
           docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
       - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 3 (`env update` only)"
-        run: |
-          docker rmi --no-prune ${{ matrix.build }}
-          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
-      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 4 (`env update` only)"
         run: |
           docker rmi --no-prune ${{ matrix.build }}
           docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
