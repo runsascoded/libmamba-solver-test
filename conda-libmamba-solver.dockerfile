@@ -9,13 +9,10 @@ RUN conda install -q -y -n base conda-libmamba-solver \
  && conda clean -afy
 
 COPY environment.yml environment.yml
-RUN time conda env update -q -v -n my-env
+ARG ENV=my-env
+ENV ENV=$ENV
+RUN time conda env update -q -v -n $ENV
 
-SHELL ["conda", "run", "-n", "my-env", "/bin/bash", "-c"]
-ENV CONDA_PREFIX=/opt/conda/envs/my-env CONDA_PROMPT_MODIFIER=(my-env) CONDA_SHLVL=2 CONDA_DEFAULT_ENV=my-env PATH=/opt/conda/envs/my-env/bin:$PATH CONDA_PREFIX_1=/opt/conda
-
-RUN conda env list
-RUN pip install plotly
-
-RUN python -c "import plotly; print(plotly)"
-ENTRYPOINT [ "python", "-c", "import plotly; print(plotly)" ]
+SHELL ["conda", "run", "-n", "$ENV", "/bin/bash", "-c"]
+# Computed by running `env` before and after a `conda activate $ENV`
+ENV CONDA_PREFIX=/opt/conda/envs/$ENV CONDA_PROMPT_MODIFIER=($ENV) CONDA_SHLVL=2 CONDA_DEFAULT_ENV=$ENV PATH=/opt/conda/envs/$ENV/bin:$PATH CONDA_PREFIX_1=/opt/conda
