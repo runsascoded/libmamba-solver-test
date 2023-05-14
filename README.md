@@ -48,18 +48,20 @@ Diffs between the Dockerfiles:
 </details>
 
 ## Discussion
-I thought `conda` with `conda-libmamba-solver` would be a drop-in replacement for the `mamba` CLI, however I'm seeing `mamba` CLI finishes in ≈2mins, while `conda` with `conda-libmamba-solver` takes 10-12mins, and also failed 3 of 10 times.
+I thought `conda` with `conda-libmamba-solver` would be a drop-in replacement for the `mamba` CLI. However I'm seeing the `mamba` CLI finish in ≈2mins, while `conda` with `conda-libmamba-solver` takes 10-12mins. I also observed a corrupted/unusable install 30% of the time I ran `conda install … conda-libmamba-solver`.
 
-In the failures, something goes wrong during the initial `conda install … conda-libmamba-solver`. The subsequent `conda env update` call prints this before failing ([GHA link](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339145#step:3:499)):
-  ```
-  Could not load conda plugin `conda-libmamba-solver`:
+### Corrupted `conda-libmamba-solver` installs
+In 3 of 10 attempts at installing and configuring `conda-libmamba-solver`, something went wrong during the `conda install … conda-libmamba-solver` step. The subsequent `conda env update` prints this before failing:
+```
+Could not load conda plugin `conda-libmamba-solver`:
 
-  libarchive.so.19: cannot open shared object file: No such file or directory
-  Could not load conda plugin `conda-libmamba-solver`:
+libarchive.so.19: cannot open shared object file: No such file or directory
+Could not load conda plugin `conda-libmamba-solver`:
 
-  libarchive.so.19: cannot open shared object file: No such file or directory
-  Will remove 1 package cache(s).
-  ```
+libarchive.so.19: cannot open shared object file: No such file or directory
+Will remove 1 package cache(s).
+```
+([example 1](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339145#step:3:499), [example 2](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339290#step:3:499), [example 3](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894183945#step:3:499))
 
 ### Verifying `conda-libmamba-solver` installation/configuration
 I believe I installed and configured `conda-libmamba-solver` correctly, according to the instructions in [the launch blog post][conda-libmamba-solver blog] and ["Getting Started" guide][conda-libmamba-solver getting-started]:
@@ -71,7 +73,7 @@ RUN time conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12
 (cf. [`conda-libmamba-solver.dockerfile#L18-20`](conda-libmamba-solver.dockerfile#L18-20))
 
 #### `conda-libmamba-solver` version emits `libmamba` blocks every 10s
-When it doesn't fail, the `conda-libmamba-solver` version appears to be correctly using `libmamba`; most of the elapsed time is spent outputting blocks like this, every 10s ([example][combined run conda-libmamba-solver job 1]):
+When it doesn't fail, the `conda-libmamba-solver` version appears to be using `libmamba`, as expected. Most of the elapsed time is spent outputting blocks like this, every 10s ([example][combined run conda-libmamba-solver job 1]):
 <details><summary><code>2023-05-14T03:52:49</code> (215 lines)</summary>
 
 ```
