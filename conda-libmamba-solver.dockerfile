@@ -18,3 +18,4 @@ RUN conda env list
 RUN pip install plotly
 
 RUN python -c "import plotly; print(plotly)"
+ENTRYPOINT [ "python", "-c", "import plotly; print(plotly)" ]
