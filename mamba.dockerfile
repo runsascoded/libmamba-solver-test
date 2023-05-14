@@ -19,4 +19,4 @@ RUN time conda install -q -y -n base -c conda-forge mamba \
  && conda clean -afy
 
 COPY environment.yml environment.yml
-RUN time mamba env update -q -v -n base
+RUN time mamba env update -q -v -n my-env

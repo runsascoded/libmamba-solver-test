@@ -20,4 +20,4 @@ RUN time conda install -q -y -n base conda-libmamba-solver \
  && conda clean -afy
 
 COPY environment.yml environment.yml
-RUN time conda env update -q -v -n base
+RUN time conda env update -q -v -n my-env

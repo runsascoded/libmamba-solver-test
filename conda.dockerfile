@@ -16,4 +16,4 @@ RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-
  && echo "conda activate base" >> ~/.bashrc
 
 COPY environment.yml environment.yml
-RUN time conda env update -q -v -n base
+RUN time conda env update -q -v -n my-env
