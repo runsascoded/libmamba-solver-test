@@ -1,4 +1,4 @@
-name: Run Docker builds with Mamba CLI vs. conda-libmamba-solver
+name: Run Docker builds using the conda CLI (with and without conda-libmamba-solver) vs. the mamba CLI
 on:
   push:
     branches: [ test ]
@@ -9,22 +9,9 @@ jobs:
     strategy:
       matrix:
         build: [ conda, conda-libmamba-solver, mamba ]
-        job: [ 1, 2, 3, 4, 5 ]
       fail-fast: false
-    name: "${{ matrix.build }}, job ${{ matrix.job }}"
+    name: ${{ matrix.build }}
     steps:
       - uses: actions/checkout@v3
-      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 1 (includes conda/mamba setup)"
+      - name: "Build ${{ matrix.build }}"
         run: docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
-      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 2 (`env update` only)"
-        run: |
-          docker rmi --no-prune ${{ matrix.build }}
-          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
-      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 3 (`env update` only)"
-        run: |
-          docker rmi --no-prune ${{ matrix.build }}
-          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
-      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 4 (`env update` only)"
-        run: |
-          docker rmi --no-prune ${{ matrix.build }}
-          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .

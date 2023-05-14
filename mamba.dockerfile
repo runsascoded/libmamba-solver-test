@@ -18,5 +18,10 @@ RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-
 RUN time conda install -q -y -n base -c conda-forge mamba \
  && conda clean -afy
 
+# Debug commands requested by the https://github.com/conda/conda-libmamba-solver/issues/new?assignees=&labels=type%3A%3Abug&projects=&template=0_bug.yml issue template
+RUN mamba info
+RUN mamba config --show-sources
+RUN mamba list --show-channel-urls
+
 COPY environment.yml environment.yml
 RUN time mamba env update -q -v -n base

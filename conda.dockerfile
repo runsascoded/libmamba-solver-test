@@ -15,5 +15,10 @@ RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-
  && echo ". $d/etc/profile.d/conda.sh" >> ~/.bashrc \
  && echo "conda activate base" >> ~/.bashrc
 
+# Debug commands requested by the https://github.com/conda/conda-libmamba-solver/issues/new?assignees=&labels=type%3A%3Abug&projects=&template=0_bug.yml issue template
+RUN conda info
+RUN conda config --show-sources
+RUN conda list --show-channel-urls
+
 COPY environment.yml environment.yml
 RUN time conda env update -q -v -n base
