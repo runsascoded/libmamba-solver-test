@@ -8,7 +8,7 @@ Elapsed time to run `[conda|mamba] env update` on [`environment.yml`](environmen
 
 ![](run-times.png)
 
-(taken from [these][mamba run] [five][conda run] [runs][combined run] [in][combined run - ubuntu] [GitHub][conda-only defaults run] Actions)
+(taken from [these][mamba run] [six][conda run] [runs][combined run] [in][combined run - ubuntu] [GitHub][conda-only defaults run] [Actions][combined run - simplified setup]; see [build-times.ipynb](build-times.ipynb))
 
 ## Dockerfiles
 The above uses three similar Dockerfiles:
@@ -794,3 +794,4 @@ Command exited with non-zero status 1
 [conda-libmamba-solver getting-started]: https://conda.github.io/conda-libmamba-solver/getting-started/
 [combined run - ubuntu]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972844135
 [conda-only defaults run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972941899
+[combined run - simplified setup]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4973140153
