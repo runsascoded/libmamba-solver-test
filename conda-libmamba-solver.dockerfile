@@ -12,7 +12,3 @@ COPY environment.yml environment.yml
 ARG ENV=my-env
 ENV ENV=$ENV
 RUN time conda env update -q -v -n $ENV
-
-SHELL ["conda", "run", "-n", "$ENV", "/bin/bash", "-c"]
-# Computed by running `env` before and after a `conda activate $ENV`
-ENV CONDA_PREFIX=/opt/conda/envs/$ENV CONDA_PROMPT_MODIFIER=($ENV) CONDA_SHLVL=2 CONDA_DEFAULT_ENV=$ENV PATH=/opt/conda/envs/$ENV/bin:$PATH CONDA_PREFIX_1=/opt/conda
