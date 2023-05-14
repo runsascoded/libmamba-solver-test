@@ -1,5 +1,7 @@
 name: Run Docker builds with Mamba CLI vs. conda-libmamba-solver
 on:
+  push:
+    branches: [ main ]
   pull_request:
 jobs:
   run:
