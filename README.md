@@ -8,7 +8,7 @@ Elapsed time to run `[conda|mamba] env update` on [`environment.yml`](environmen
 
 ![](run-times.png)
 
-(taken from [these][mamba run] [three][conda run] [runs][combined run] in GitHub Actions)
+(taken from [these][mamba run] [five][conda run] [runs][combined run] [in][combined run - ubuntu] [GitHub][conda-only defaults run] Actions)
 
 ## Dockerfiles
 The above uses three similar Dockerfiles:
@@ -25,22 +25,22 @@ Diffs between the Dockerfiles:
 <details><summary><code>diff conda.dockerfile conda-libmamba-solver.dockerfile</code></summary>
 
 ```diff
-18c18,19
-< RUN time conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12 \
----
-> RUN time conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12 conda-libmamba-solver \
+17a18,21
+> RUN time conda install -q -y -n base conda-libmamba-solver \
 >  && conda config --set solver libmamba \
+>  && conda clean -afy
+>
 ```
 </details>
 
 <details><summary><code>diff conda.dockerfile mamba.dockerfile</code></summary>
 
 ```diff
-18c18
-< RUN time conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12 \
----
-> RUN time conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12 mamba \
-22c22
+17a18,20
+> RUN time conda install -q -y -n base -c conda-forge mamba \
+>  && conda clean -afy
+>
+19c22
 < RUN time conda env update -q -v -n base
 ---
 > RUN time mamba env update -q -v -n base
@@ -48,20 +48,9 @@ Diffs between the Dockerfiles:
 </details>
 
 ## Discussion
-I thought `conda` with `conda-libmamba-solver` would be a drop-in replacement for the `mamba` CLI. However I'm seeing the `mamba` CLI finish in ≈2mins, while `conda` with `conda-libmamba-solver` takes 10-12mins. I also observed a corrupted/unusable install 30% of the time I ran `conda install … conda-libmamba-solver`.
-
-### Corrupted `conda-libmamba-solver` installs
-In 3 of 10 attempts at installing and configuring `conda-libmamba-solver`, something went wrong during the `conda install … conda-libmamba-solver` step. The subsequent `conda env update` prints this before failing:
-```
-Could not load conda plugin `conda-libmamba-solver`:
-
-libarchive.so.19: cannot open shared object file: No such file or directory
-Could not load conda plugin `conda-libmamba-solver`:
-
-libarchive.so.19: cannot open shared object file: No such file or directory
-Will remove 1 package cache(s).
-```
-([example 1](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339145#step:3:499), [example 2](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339290#step:3:499), [example 3](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894183945#step:3:499))
+I thought `conda` with `conda-libmamba-solver` would be a drop-in replacement for the `mamba` CLI. However:
+- the `mamba` CLI finishes in ≈2mins, while `conda` with `conda-libmamba-solver` takes 10-12mins.
+- I've observed a corrupted/unusable install in 5 of 15 runs of `conda install … conda-libmamba-solver`.
 
 ### Verifying `conda-libmamba-solver` installation/configuration
 I believe I installed and configured `conda-libmamba-solver` correctly, according to the instructions in [the launch blog post][conda-libmamba-solver blog] and ["Getting Started" guide][conda-libmamba-solver getting-started]:
@@ -73,7 +62,7 @@ RUN time conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12
 (cf. [`conda-libmamba-solver.dockerfile#L18-20`](conda-libmamba-solver.dockerfile#L18-20))
 
 #### `conda-libmamba-solver` version emits `libmamba` blocks every 10s
-When it doesn't fail, the `conda-libmamba-solver` version appears to be using `libmamba`, as expected. Most of the elapsed time is spent outputting blocks like this, every 10s ([example][combined run conda-libmamba-solver job 1]):
+The `conda-libmamba-solver` version appears to be using `libmamba`, as expected. Most of the elapsed time is spent outputting blocks like this, every 10s ([example][combined run conda-libmamba-solver job 1]):
 <details><summary><code>2023-05-14T03:52:49</code> (215 lines)</summary>
 
 ```
@@ -754,8 +743,46 @@ info libmamba Adding job: umap-learn 0.5.2
 ```
 </details>
 
-#### `classic` version doesn't reference `libmamba`
+#### `classic` version doesn't reference `libmamba` (as expected)
 The plain `conda` (`classic` solver) jobs don't reference `libmamba`, as expected ([example][combined run conda job 1]), seemingly ruling out that I'm inadvertently just running with the `classic` solver when I mean to be using `conda-libmamba-solver`.
+
+### Aside: `-c conda-forge` corrupts `conda-libmamba-solver` install 1/3 of the time
+Separately, in some of my tests, I installed `conda-libmamba-solver` alongside `python` and `conda` pins, and included `-c conda-forge`:
+
+```bash
+conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12 conda-libmamba-solver
+```
+
+In 5 of 15 such attempts, something went wrong during the `conda install … conda-libmamba-solver` step. The subsequent `conda env update` printed this before failing:
+```
+Could not load conda plugin `conda-libmamba-solver`:
+
+libarchive.so.19: cannot open shared object file: No such file or directory
+WARNING conda.plugins.manager:load_entrypoints(84): Could not load conda plugin `conda-libmamba-solver`:
+
+libarchive.so.19: cannot open shared object file: No such file or directory
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.9/site-packages/conda/exceptions.py", line 1132, in __call__
+    return func(*args, **kwargs)
+  File "/opt/conda/lib/python3.9/site-packages/conda_env/cli/main.py", line 78, in do_call
+    exit_code = getattr(module, func_name)(args, parser)
+  File "/opt/conda/lib/python3.9/site-packages/conda/notices/core.py", line 121, in wrapper
+    return func(*args, **kwargs)
+  File "/opt/conda/lib/python3.9/site-packages/conda_env/cli/main_update.py", line 131, in execute
+    result[installer_type] = installer.install(prefix, specs, args, env)
+  File "/opt/conda/lib/python3.9/site-packages/conda_env/installers/conda.py", line 50, in install
+    solver = _solve(prefix, specs, args, env, *_, **kwargs)
+  File "/opt/conda/lib/python3.9/site-packages/conda_env/installers/conda.py", line 33, in _solve
+    solver_backend = context.plugin_manager.get_cached_solver_backend()
+  File "/opt/conda/lib/python3.9/site-packages/conda/plugins/manager.py", line 149, in get_solver_backend
+    raise CondaValueError(
+conda.exceptions.CondaValueError: You have chosen a non-default solver backend (libmamba) but it was not recognized. Choose one of: classic
+
+Command exited with non-zero status 1
+```
+
+([example 1](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339145#step:3:499), [example 2](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339290#step:3:499), [example 3](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894183945#step:3:499), [example 4](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972844135/jobs/8898304725#step:3:495), [example 5](https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972844135/jobs/8898304791#step:3:495))
+
 
 
 [mamba run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339175
@@ -765,3 +792,5 @@ The plain `conda` (`classic` solver) jobs don't reference `libmamba`, as expecte
 [combined run conda job 1]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894184089
 [conda-libmamba-solver blog]: https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community
 [conda-libmamba-solver getting-started]: https://conda.github.io/conda-libmamba-solver/getting-started/
+[combined run - ubuntu]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972844135
+[conda-only defaults run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972941899
