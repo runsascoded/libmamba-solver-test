@@ -1,4 +1,4 @@
-name: Run Docker builds with Mamba CLI vs. conda-libmamba-solver
+name: Run Docker builds using the conda CLI (with and without conda-libmamba-solver) vs. the mamba CLI
 on:
   push:
     branches: [ test ]
