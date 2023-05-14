@@ -12,7 +12,9 @@ COPY environment.yml environment.yml
 RUN time conda env update -q -v -n my-env
 
 SHELL ["conda", "run", "-n", "my-env", "/bin/bash", "-c"]
+ENV CONDA_PREFIX=/opt/conda/envs/my-env CONDA_PROMPT_MODIFIER=(my-env) CONDA_SHLVL=2 CONDA_DEFAULT_ENV=my-env PATH=/opt/conda/envs/my-env/bin:$PATH CONDA_PREFIX_1=/opt/conda
+
 RUN conda env list
 RUN pip install plotly
 
-ENTRYPOINT [ "python", "-c", "import plotly; print(plotly)" ]
+RUN python -c "import plotly; print(plotly)"
