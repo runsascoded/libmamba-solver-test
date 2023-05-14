@@ -16,3 +16,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 1 (includes conda/mamba setup)"
         run: docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
+      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 2 (`env update` only)"
+        run: |
+          docker rmi --no-prune ${{ matrix.build }}
+          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
+      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 3 (`env update` only)"
+        run: |
+          docker rmi --no-prune ${{ matrix.build }}
+          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
+      - name: "Build ${{ matrix.build }}: job ${{ matrix.job }}, attempt 4 (`env update` only)"
+        run: |
+          docker rmi --no-prune ${{ matrix.build }}
+          docker build -f ${{ matrix.build }}.dockerfile -t ${{ matrix.build }} .
