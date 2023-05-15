@@ -3,22 +3,23 @@
 `conda-libmamba-solver` seems to be ≈5x slower than `mamba` when installing [`environment.yml`] into the `base` environment:
 
 <a id="plot-base"></a>
-![](./run-times-base-env.png)
+![](run-times-base-env.png)
 
 On the other hand, `conda-libmamba-solver` seems to be 30% **faster** than `mamba` when installing [`environment.yml`] into a non-`base` environment:
-![](./run-times-new-env.png)
+![](run-times-new-env.png)
 
 Notes:
-- Data above
-[comes][mamba run]
-[from][conda run]
-[these][combined run]
-[eight][combined run - ubuntu]
-[runs][conda-only defaults run]
-[in][combined run - simplified setup]
-[GitHub][combined run - simplified + 5x4x3]
+- Data
+[above][mamba run]
+[comes][conda run]
+[from][combined run]
+[these][combined run - ubuntu]
+[nine][conda-only defaults run]
+[runs][combined run - simplified setup]
+[in][combined run - simplified + 5x4x3]
+[GitHub][new env conda failures]
 [Actions][new env run];
-see [build-times.ipynb](build-times.ipynb)
+see [build-times.ipynb](build-times.ipynb) as well:
   - Commits prior to (and including) [`f7c0ba5`](https://github.com/runsascoded/libmamba-solver-test/commit/f7c0ba5) perform the `env update` in the `base` env, generating the timings displayed in the first plot above (where `conda-libmamba-solver` is slow).
   - After `f7c0ba5`, the `env update`s create a new env called `my-env`, and `conda-libmamba-solver` is fast as expected.
 - re: the failures in the above plots:
