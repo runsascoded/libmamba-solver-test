@@ -1,4 +1,4 @@
-# `conda` (with and without `conda-libmamba-solver`) vs. `mamba`
+# `conda` (`classic`/`libmamba` solvers) vs. `mamba`
 
 Elapsed time to run `[conda|mamba] env update` on [`environment.yml`](environment.yml)
  using:
@@ -6,20 +6,38 @@ Elapsed time to run `[conda|mamba] env update` on [`environment.yml`](environmen
 - `conda` CLI with `conda-libmamba-solver`
 - `mamba` CLI
 
-![](run-times.png)
+In `base` env:
+![](./run-times-base-env.png)
 
-(taken [from][mamba run] [these][conda run] [seven][combined run] [runs][combined run - ubuntu] [in][conda-only defaults run] [GitHub][combined run - simplified setup] [Actions][combined run - simplified + 5x4x3]; see [build-times.ipynb](build-times.ipynb))
+In a non-`base` env:
+![](./run-times-new-env.png)
+
+([taken][mamba run]
+[from][conda run]
+[these][combined run]
+[eight][combined run - ubuntu]
+[runs][conda-only defaults run]
+[in][combined run - simplified setup]
+[GitHub][combined run - simplified + 5x4x3]
+[Actions][new env run];
+see [build-times.ipynb](build-times.ipynb))
+
+It's strange that `conda-libmamba-solver` is ≈5x slower than `mamba` when installing in the `base` env, but ≈30% faster when installing into a non-`base` env. Some other notes:
+- The `conda-libmamba-solver` failures in the first plot were due to a corrupt install when `-c conda-forge` is passed (see [discussion below](#conda-forge-failures)).
+- The `conda` failures in the second plot [seem like OOMs in GitHub Actions][new env conda failures]?
+- Commits prior to (and including) [`f7c0ba5`](https://github.com/runsascoded/libmamba-solver-test/commit/f7c0ba5) perform the `env update` in the `base` env, generating the timings displayed in the first plot above (where `conda-libmamba-solver` is slow).
+- After `f7c0ba5`, the `env update`s create a new env called `my-env`, and `conda-libmamba-solver` is fast as expected.
 
 ## Dockerfiles
-The above uses three similar Dockerfiles:
+The above plots use three similar Dockerfiles:
 - [`conda.dockerfile`](conda.dockerfile): plain `conda env update` (no special configuration)
 - [`conda-libmamba-solver.dockerfile`](conda-libmamba-solver.dockerfile): install+configure `conda-libmamba-solver`, use `conda` to update environment
-  - `conda install … conda-libmamba-solver`
+  - `conda install … -n base conda-libmamba-solver`
   - `conda config --set solver libmamba`
-  - `conda env update …`
+  - `conda env update -n my-env`
 - [`mamba.dockerfile`](mamba.dockerfile): install `mamba` CLI, use that to update environment
-  - `conda install … mamba`
-  - `mamba env update …`
+  - `conda install … -n base -c conda-forge mamba`
+  - `mamba env update -n my-env`
 
 Diffs between the Dockerfiles:
 <details><summary><code>diff conda.dockerfile conda-libmamba-solver.dockerfile</code></summary>
@@ -48,10 +66,10 @@ Diffs between the Dockerfiles:
 </details>
 
 ## Discussion
-I thought `conda` with `conda-libmamba-solver` would be a drop-in replacement for the `mamba` CLI. However, I'm seeing `conda-libmamba-solver` take 5-7x as long to solve [`environment.yml`] as the `mamba` CLI (≈2mins vs. 10-14mins). `conda-libmamba-solver` seems to take about as long as plain `conda` (with the `classic` solver), though the elapsed time has lower variance.
+I thought `conda` with `conda-libmamba-solver` would be a drop-in replacement for the `mamba` CLI. However, I'm seeing `conda-libmamba-solver` take ≈5x as long to solve [`environment.yml`] as the `mamba` CLI (≈2mins vs. 10-14mins), *when installing into the `base` environment*. When installing in a fresh environment (`my-env`, in these examples), `conda-libmamba-solver` is ≈30% faster than `mamba`.
 
-### Verifying `conda-libmamba-solver` installation/configuration
-I believe I installed and configured `conda-libmamba-solver` correctly, according to the instructions in [the launch blog post][conda-libmamba-solver blog] and ["Getting Started" guide][conda-libmamba-solver getting-started]:
+### Verifying `conda-libmamba-solver` installation/configuration in the slow runs
+I believe `conda-libmamba-solver` is installed and configured correctly. I followed the instructions in [the launch blog post][conda-libmamba-solver blog] and ["Getting Started" guide][conda-libmamba-solver getting-started]:
 ```Dockerfile
 RUN time conda install -q -y -n base conda-libmamba-solver \
  && conda config --set solver libmamba \
@@ -745,7 +763,7 @@ info libmamba Adding job: umap-learn 0.5.2
 The plain `conda` (`classic` solver) jobs don't reference `libmamba`, as expected ([example][combined run conda job 1]), seemingly ruling out that I'm inadvertently just running with the `classic` solver when I mean to be using `conda-libmamba-solver`.
 
 ### Aside: `-c conda-forge` corrupts `conda-libmamba-solver` install 1/3 of the time <a id="conda-forge-failures"></a>
-Separately, in some of my tests, I installed `conda-libmamba-solver` alongside `python` and `conda` pins, and included `-c conda-forge`:
+In some of my early tests, I installed `conda-libmamba-solver` alongside `python` and `conda` pins, and included `-c conda-forge`:
 
 ```bash
 conda install -q -y -n base -c conda-forge conda==23.3.1 python==3.9.12 conda-libmamba-solver
@@ -784,14 +802,18 @@ Command exited with non-zero status 1
 It seems that including `-c conda-forge` in the `conda-libmamba-solver` install results in a corrupt install ≈1/3 of the time. I guess that is not the recommended way to install `conda-libmamba-solver`, but I'm mentioning it here since the specific failure mode seems possibly indicative of other issues, and I didn't see documentation about it elsewhere.
 
 
+[conda-libmamba-solver blog]: https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community
+[conda-libmamba-solver getting-started]: https://conda.github.io/conda-libmamba-solver/getting-started/
+
 [mamba run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969272579/jobs/8892339175
 [conda run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4969923328/jobs/8893463722
 [combined run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885
-[combined run conda-libmamba-solver job 1]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894183872
-[combined run conda job 1]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894184089
-[conda-libmamba-solver blog]: https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community
-[conda-libmamba-solver getting-started]: https://conda.github.io/conda-libmamba-solver/getting-started/
 [combined run - ubuntu]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972844135
 [conda-only defaults run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4972941899
 [combined run - simplified setup]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4973140153
 [combined run - simplified + 5x4x3]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4973501857
+[new env conda failures]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4973889484
+[new env run]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4974160990
+
+[combined run conda-libmamba-solver job 1]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894183872
+[combined run conda job 1]: https://github.com/runsascoded/libmamba-solver-test/actions/runs/4970360885/jobs/8894184089
